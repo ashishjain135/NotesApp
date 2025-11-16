@@ -10,7 +10,7 @@ import axios from "axios";
 // export default api;
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || "http://localhost:5000/api",
+  baseURL: "https://notesapp-m7pp.onrender.com/api",
   withCredentials: true, // cookie bhejne ke liye
 });
 
