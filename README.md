@@ -38,6 +38,13 @@ Pin System	Mark important notes
 UI/UX Module	Attractive design + animations
 Validation System	Valid email, password match, non-empty content
 
+## Screeshots
+![App Screenshot](./screenshot/emptyNoteList.png)
+![App Screenshot](./screenshot/Registration_Page.png)
+![App Screenshot](./screenshot/NoteList.png)
+
+
+
 ## 📈 Future Enhancements
 
 ➕ Search notes by keywords

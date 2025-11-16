@@ -11,20 +11,21 @@ const router = express.Router();
 const COOKIE_NAME = process.env.COOKIE_NAME || "token";
 const JWT_SECRET = process.env.JWT_SECRET || "infinity";
 
-const isProd = process.env.NODE_ENV === "production";
+//const isProd = process.env.NODE_ENV === "production";
 // sirf check karne ke liye ki file load ho rahi hai
 console.log("✅ Auth routes loaded");
 
 // helper: set jwt cookie
 function setTokenCookie(res, userId) {
   const token = jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "7d" });
-  // res.cookie(COOKIE_NAME, token, {
-  //   httpOnly: true,
-  //   sameSite: isProd? "none": "lax",
-  //   secure: false, // prod me true
-  //   maxAge: 7 * 24 * 3600 * 1000,
-  // });
-  setTokenCookie(res, user._id);
+  res.cookie(COOKIE_NAME, token, {
+    httpOnly: true,
+    //sameSite: isProd? "none": "lax",
+    sameSite:"lax",
+    secure: false, // prod me true
+    maxAge: 7 * 24 * 3600 * 1000,
+  });
+  // setTokenCookie(res, user._id);
 }
 
 // --------------------------------------------------

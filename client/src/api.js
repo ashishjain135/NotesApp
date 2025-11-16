@@ -1,17 +1,17 @@
 import axios from "axios";
 
-// const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
-
-// const api = axios.create({
-//   baseURL: API_BASE,
-//   withCredentials: true, // important: send/receive HttpOnly cookie
-// });
-
-// export default api;
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
 const api = axios.create({
-  baseURL: "https://notesapp-m7pp.onrender.com/api",
-  withCredentials: true, // cookie bhejne ke liye
+  baseURL: API_BASE,
+  withCredentials: true, // important: send/receive HttpOnly cookie
 });
 
 export default api;
+
+// const api = axios.create({
+//   baseURL: "https://notesapp-m7pp.onrender.com/api",
+//   withCredentials: true, // cookie bhejne ke liye
+// });
+
+// export default api;
