@@ -16,7 +16,8 @@ app.use(express.json());
 app.use(
   cors({
     origin: ["http://localhost:5173",
-    "https://notes-app-ruddy-zeta.vercel.app "],
+    "https://notes-app-ivory-tau.vercel.app"],
+    credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
