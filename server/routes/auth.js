@@ -6,43 +6,28 @@ import dotenv from "dotenv";
 import { body, validationResult } from "express-validator";
 
 dotenv.config();
-const router = express.Router();
 
-const COOKIE_NAME = process.env.COOKIE_NAME || "token";
+const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "infinity";
 
-//const isProd = process.env.NODE_ENV === "production";
-// sirf check karne ke liye ki file load ho rahi hai
 console.log("✅ Auth routes loaded");
-
-// helper: set jwt cookie
-function setTokenCookie(res, userId) {
-  const token = jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "7d" });
-  res.cookie(COOKIE_NAME, token, {
-    httpOnly: true,
-    //sameSite: isProd? "none": "lax",
-    sameSite:"lax",
-    secure: false, // prod me true
-    maxAge: 7 * 24 * 3600 * 1000,
-  });
-  // setTokenCookie(res, user._id);
-}
 
 // --------------------------------------------------
 // POST /api/auth/register
 // --------------------------------------------------
 router.post(
   "/register",
+  body("name").notEmpty().withMessage("Name is required"),
   body("email").isEmail().withMessage("Please enter a valid email"),
   body("password")
     .isLength({ min: 6 })
-    .withMessage("Password too short — minimum 6 characters"),
+    .withMessage("Password must be at least 6 characters"),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res
         .status(400)
-        .json({ errors: errors.array().map((e) => ({ param: e.param, msg: e.msg })) });
+        .json({ errors: errors.array().map(e => ({ param: e.param, msg: e.msg })) });
     }
 
     const { name, email, password } = req.body;
@@ -56,16 +41,23 @@ router.post(
       const hashed = await bcrypt.hash(password, 10);
       const user = await User.create({ name, email, password: hashed });
 
-      setTokenCookie(res, user._id);
+      // 🔥 JWT TOKEN
+      const token = jwt.sign(
+        { id: user._id },
+        JWT_SECRET,
+        { expiresIn: "7d" }
+      );
 
-      return res.json({
-        user: { id: user._id, name: user.name, email: user.email },
+      return res.status(201).json({
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
       });
     } catch (err) {
       console.error("Register error:", err);
-      if (err.code === 11000) {
-        return res.status(400).json({ message: "Email already exists" });
-      }
       return res.status(500).json({ message: "Server error" });
     }
   }
@@ -83,22 +75,36 @@ router.post(
     if (!errors.isEmpty()) {
       return res
         .status(400)
-        .json({ errors: errors.array().map((e) => ({ param: e.param, msg: e.msg })) });
+        .json({ errors: errors.array().map(e => ({ param: e.param, msg: e.msg })) });
     }
 
     const { email, password } = req.body;
 
     try {
       const user = await User.findOne({ email });
-      if (!user) return res.status(400).json({ message: "Invalid credentials" });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
 
       const ok = await bcrypt.compare(password, user.password);
-      if (!ok) return res.status(400).json({ message: "Invalid credentials" });
+      if (!ok) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
 
-      setTokenCookie(res, user._id);
+      // 🔥 JWT TOKEN
+      const token = jwt.sign(
+        { id: user._id },
+        JWT_SECRET,
+        { expiresIn: "7d" }
+      );
 
       return res.json({
-        user: { id: user._id, name: user.name, email: user.email },
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
       });
     } catch (err) {
       console.error("Login error:", err);
@@ -108,21 +114,22 @@ router.post(
 );
 
 // --------------------------------------------------
-// GET /api/auth/me
+// GET /api/auth/me  (OPTIONAL)
 // --------------------------------------------------
 router.get("/me", async (req, res) => {
-  
-  const token = req.cookies[COOKIE_NAME];
-  if (!token) return res.json({ user: null });
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.json({ user: null });
+  }
 
   try {
-    
+    const token = authHeader.split(" ")[1];
     const payload = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(payload.id).select("name email");
 
     if (!user) return res.json({ user: null });
     return res.json({ user });
-    
   } catch (err) {
     console.error("ME error:", err);
     return res.json({ user: null });
@@ -133,8 +140,8 @@ router.get("/me", async (req, res) => {
 // POST /api/auth/logout
 // --------------------------------------------------
 router.post("/logout", (req, res) => {
-  res.clearCookie(COOKIE_NAME);
-  res.json({ ok: true });
+  // frontend will just remove token
+  return res.json({ ok: true });
 });
 
 export default router;
