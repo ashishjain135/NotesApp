@@ -61,6 +61,7 @@ export default function Register() {
       };
 
       const res = await api.post("/auth/register", payload);
+      localStorage.setItem("token", res.data.token);
       setUser(res.data.user);
       nav("/notes");
     } catch (err) {

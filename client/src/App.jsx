@@ -6,6 +6,7 @@ import NotesList from "./pages/NotesList";
 import Editor from "./pages/Editor";
 import Nav from "./components/Nav";
 import { AuthContext } from "./contexts/AuthContext";
+console.log("API BASE:", import.meta.env.VITE_API_BASE);
 
 function PrivateRoute({ children }) {
   const { user } = useContext(AuthContext);

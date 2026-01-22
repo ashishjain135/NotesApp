@@ -5,34 +5,41 @@ export const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-
-  //this flag ensures that we don't render children until we know auth status "/auth/me"
-  const[loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    //try to get user from server
-    api
-    .get("/auth/me")
-      .then(res => {
-        //if cookie valid, set user
-        setUser(res.data?.user || null);
-      })
-      .catch((err) => {
-        console.log("Auth me error:", err);
-        setUser(null);
-      })
-      .finally(() => 
-        setLoading(false));
-      },[]); 
+    async function loadUser() {
+      const token = localStorage.getItem("token");
 
-      if(loading){
-        return (
-          <div className="flex items-center justify-center h-screen">
-            <div className="text-gray-500">Loading...</div>
-          </div>
-        );
+      // 🔹 No token = user not logged in
+      if (!token) {
+        setLoading(false);
+        return;
       }
-  // optional: implement /auth/me later to persist between refreshes
+
+      try {
+        // 🔥 Token automatically attached by axios interceptor
+        const res = await api.get("/auth/me");
+        setUser(res.data?.user || null);
+      } catch (err) {
+        console.log("Auth me error:", err);
+        localStorage.removeItem("token");
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

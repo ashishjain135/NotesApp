@@ -12,6 +12,7 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await api.post("/auth/login", form);
+      localStorage.setItem("token", res.data.token);
       setUser(res.data.user);
       nav("/notes");
     } catch (err) {
