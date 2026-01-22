@@ -10,7 +10,6 @@ dotenv.config();
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "infinity";
 
-console.log("✅ Auth routes loaded");
 
 // --------------------------------------------------
 // POST /api/auth/register

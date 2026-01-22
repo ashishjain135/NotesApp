@@ -15,7 +15,8 @@ app.use(express.json());
 /* 🔥 CORS – JWT HEADER BASED */
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite frontend
+    origin: ["http://localhost:5173",
+    "https://notes-app-ruddy-zeta.vercel.app "],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })

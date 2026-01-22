@@ -4,7 +4,7 @@ dotenv.config();
 
 export default function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
-  console.log("Auth Header:", authHeader);
+  
 
   // const token = req.cookies[process.env.COOKIE_NAME || "token"];
 
